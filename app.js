@@ -6,7 +6,7 @@ const cors = require("cors")
 
 const AuthRoute = require('./routes/AuthRoute');
 const UserRoute = require('./routes/UserRoute.js')
-// import PostRoute from './Routes/PostRoute.js'
+const PostRoute = require('./routes/PostRoute.js')
 
 var express = require('express');
 var path = require('path');
@@ -36,6 +36,7 @@ mongoose
 app.use('/', indexRouter);
 app.use('/auth', AuthRoute);
 app.use('/user', UserRoute);
+app.use('/post', PostRoute);
 
 
 // catch 404 and forard to error handler
