@@ -5,7 +5,7 @@ require(
 const cors = require("cors")
 
 const AuthRoute = require('./routes/AuthRoute');
-// import UserRoute from './Routes/UserRoute.js'
+const UserRoute = require('./routes/UserRoute.js')
 // import PostRoute from './Routes/PostRoute.js'
 
 var express = require('express');
@@ -35,6 +35,8 @@ mongoose
 
 app.use('/', indexRouter);
 app.use('/auth', AuthRoute);
+app.use('/user', UserRoute);
+
 
 // catch 404 and forard to error handler
 app.use((req, res, next) => {
