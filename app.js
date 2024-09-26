@@ -7,6 +7,10 @@ const cors = require("cors")
 const AuthRoute = require('./routes/AuthRoute');
 const UserRoute = require('./routes/UserRoute.js')
 const PostRoute = require('./routes/PostRoute.js')
+const UpLoadRoute = require('./routes/UpLoadRoute.js')
+const ChatRoute = require("./routes/ChatRoute.js")
+const MessageRoute = require("./routes/MessageRoute.js")
+const CommentRoute = require("./routes/CommentRoutes.js");
 
 var express = require('express');
 var path = require('path');
@@ -16,6 +20,9 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 
 var app = express();
+
+app.use('/images', express.static('images'))
+
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -37,6 +44,10 @@ app.use('/', indexRouter);
 app.use('/auth', AuthRoute);
 app.use('/user', UserRoute);
 app.use('/post', PostRoute);
+app.use('/upload', UpLoadRoute);
+app.use('/chat', ChatRoute);
+app.use('/message', MessageRoute);
+app.use('/comments', CommentRoute);
 
 
 // catch 404 and forard to error handler

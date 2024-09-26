@@ -10,7 +10,7 @@ taskController.createPost = async (req, res) => {
 
     try {
         await newPost.save();
-        res.status(200).json("Post created!");
+        res.status(200).json(newPost);
     } catch (error) {
         res.status(500).json(error);
     }
@@ -48,16 +48,15 @@ taskController.updatePost = async (req, res) => {
 
 // Delete a post
 taskController.deletePost = async (req, res) => {
-    const id = req.params.id;
-    const { userId } = req.body;
-
+    const postId = req.params.id;
+    const userId = req.params.userId;
+    console.error(id, userId);
     try {
-        const post = await postModel.findById(id);
-        if (post.userId === userId) {
-            await post.deleteOne();
+        const result = await postModel.deleteOne({ _id: id });
+        if (result > 0) {
             res.status(200).json("Post deleted successfully");
         } else {
-            res.status(403).json("Action forbidden");
+            res.status(404).json("Not Found")
         }
     } catch (error) {
         res.status(500).json(error);
@@ -71,13 +70,53 @@ taskController.likePost = async (req, res) => {
 
     try {
         const post = await postModel.findById(id);
-        if (!post.likes.includes(userId)) {
-            await post.updateOne({ $push: { likes: userId } });
+        if (post.likes.includes(userId)) {
+            await post.updateOne({ $pull: { likes: userId } });
             res.status(200).json("Post liked");
         } else {
-            await post.updateOne({ $pull: { likes: userId } });
+            await post.updateOne({ $push: { likes: userId } });
             res.status(200).json("Post Unliked");
         }
+    } catch (error) {
+        res.status(500).json(error);
+    }
+};
+
+// Get timeline posts
+taskController.getTimelinePosts = async (req, res) => {
+    const userId = req.params.id
+    try {
+        const currentUserPosts = await postModel.find(userId ? { userId: userId } : {});
+
+        const followingPosts = await UserModel.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(userId),
+                },
+            },
+            {
+                $lookup: {
+                    from: "posts",
+                    localField: "following",
+                    foreignField: "userId",
+                    as: "followingPosts",
+                },
+            },
+            {
+                $project: {
+                    followingPosts: 1,
+                    _id: 0,
+                },
+            },
+        ]);
+
+        res.status(200).json(
+            currentUserPosts
+                .concat(...followingPosts[0].followingPosts)
+                .sort((a, b) => {
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                })
+        );
     } catch (error) {
         res.status(500).json(error);
     }
