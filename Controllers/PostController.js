@@ -31,16 +31,26 @@ taskController.getPost = async (req, res) => {
 // Update a post
 taskController.updatePost = async (req, res) => {
     const postId = req.params.id;
-    const { userId } = req.body;
+    const { userId, desc, image } = req.body;
 
     try {
-        const post = await postModel.findById(postId);
-        if (post.userId === userId) {
-            await post.updateOne({ $set: req.body });
-            res.status(200).json("Post Updated");
-        } else {
-            res.status(403).json("Action forbidden");
+        // const post = await postModel.findById(postId);
+        // if (post.userId === userId) {
+        //     // await post.updateOne({ $set: req.body });
+        //     const updatedPost = await post.updateOne({ $set: { desc, image } }, { new: true });
+        //     res.status(200).json(updatedPost);
+        // } else {
+        //     res.status(403).json("Action forbidden");
+        // }
+        const updatedPost = await postModel.findOneAndUpdate(
+            { _id: req.params.id },
+            { $set: { desc: req.body.desc, image: req.body.image } },
+            { new: true }
+        );
+        if (!updatedPost) {
+            res.status(404).json({ message: "Post not found" })
         }
+        res.status(200).json(updatedPost);
     } catch (error) {
         res.status(500).json(error);
     }
@@ -48,15 +58,16 @@ taskController.updatePost = async (req, res) => {
 
 // Delete a post
 taskController.deletePost = async (req, res) => {
-    const postId = req.params.id;
-    const userId = req.params.userId;
-    console.error(id, userId);
+    const id = req.params.id;
+    const { userId } = req.body;
+    console.log(userId, id);
     try {
-        const result = await postModel.deleteOne({ _id: id });
-        if (result > 0) {
-            res.status(200).json("Post deleted successfully");
+        const post = await postModel.findById(id);
+        if (post.userId === userId) {
+            await post.deleteOne();
+            res.status(200).json("Post deleted.");
         } else {
-            res.status(404).json("Not Found")
+            res.status(403).json("Action forbidden");
         }
     } catch (error) {
         res.status(500).json(error);
@@ -86,7 +97,7 @@ taskController.likePost = async (req, res) => {
 taskController.getTimelinePosts = async (req, res) => {
     const userId = req.params.id
     try {
-        const currentUserPosts = await postModel.find(userId ? { userId: userId } : {});
+        const currentUserPosts = await postModel.find({ userId: userId });
 
         const followingPosts = await UserModel.aggregate([
             {

@@ -8,6 +8,8 @@ router.post('/', authMiddleware, commentController.createNewComment);
 
 router.get('/:id', commentController.getSingleComment);
 
+router.get('/comment/:postid', commentController.getCommentByPostId);
+
 router.put('/:id', authMiddleware, commentController.updateSingleComment);
 
 router.delete('/:id', authMiddleware, commentController.deleteSingleComment);

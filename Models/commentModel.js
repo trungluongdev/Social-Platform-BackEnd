@@ -12,6 +12,7 @@ const commentSchema = Schema(
             like: { type: Number, default: 0 },
             dislike: { type: Number, default: 0 },
         },
+        // id: { type: String, required: true },
     },
     { timestamps: true }
 );

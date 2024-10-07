@@ -82,4 +82,11 @@ commentController.deleteSingleComment = catchAsync(async (req, res, next) => {
     return sendResponse(res, 200, true, comment, null, "Delete successful");
 });
 
+commentController.getCommentByPostId = catchAsync(async (req, res, next) => {
+    const postId = req.params.postid;
+    console.log(postId);
+    const comments = await Comment.find({ post: postId });
+    return sendResponse(res, 200, true, comments, null, null);
+});
+
 module.exports = commentController;
